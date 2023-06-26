@@ -1,6 +1,6 @@
 import pygame
 from rectangle import Rectangle
-
+from random import choice
 
 class Quadtree:
     def __init__(self, boundary, capacity):
@@ -12,6 +12,7 @@ class Quadtree:
         self.rectangles = []
         # 此节点是否已经分裂
         self.divided = False
+
 
 
     # 插入节点
@@ -62,6 +63,7 @@ class Quadtree:
             self.southwest.rectangles.append(rect)
             if len(self.southwest.rectangles) > self.southwest.capacity:
                 self.southwest.subdivide()
+    
 
 
     # 分裂函数
@@ -98,12 +100,41 @@ class Quadtree:
 
         return self.rectangles
 
+
     def draw(self, surface):
         pygame.draw.rect(surface, (0, 0, 0), pygame.Rect(
             self.boundary.x, self.boundary.y, self.boundary.w, self.boundary.h), 1)
+
+        for rect in self.rectangles:
+            if rect.moved:
+                color = (0, 0, 255)  # 高亮显示为蓝色
+            elif rect.selected:
+                color = (255, 105, 108)  # 粉色表示被选中
+            else:
+                color = (0, 255, 0)  # 其他矩形为绿色
+            pygame.draw.rect(surface, color, pygame.Rect(
+                rect.x, rect.y, rect.w, rect.h), 1)
 
         if self.divided:
             self.northeast.draw(surface)
             self.northwest.draw(surface)
             self.southeast.draw(surface)
             self.southwest.draw(surface)
+
+    # 删除节点中的某一个矩形
+    def remove(self, rect):
+        if rect in self.rectangles:
+            self.rectangles.remove(rect)
+        if self.divided:
+            self.northeast.remove(rect)
+            self.northwest.remove(rect)
+            self.southeast.remove(rect)
+            self.southwest.remove(rect)
+
+
+    # 移动某一个矩形到随机位置。
+    def move(self, old_rect, new_rect):
+        self.remove(old_rect)
+        new_rect.moved = True
+        self.insert(new_rect)
+        

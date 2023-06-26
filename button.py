@@ -12,7 +12,7 @@ class Button:
         pygame.draw.rect(win, (255, 0, 0), self.rect, 0)
 
         if self.text != '':
-            font = pygame.font.SysFont('comicsans', 25)
+            font = pygame.font.SysFont('comicsans', 15)
             text = font.render(self.text, 1, (0, 0, 0))
             win.blit(text, (self.rect.x + (self.rect.w / 2 - text.get_width() / 2), self.rect.y + (self.rect.h / 2 - text.get_height() / 2)))
 

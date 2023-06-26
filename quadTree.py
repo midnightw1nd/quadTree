@@ -23,26 +23,51 @@ class Quadtree:
 
         # 如果此节点已经分裂，尝试将矩形插入到相交的子节点中
         if self.divided:
-            inserted = False
-            inserted |= self.northeast.insert(rect)
-            inserted |= self.northwest.insert(rect)
-            inserted |= self.southeast.insert(rect)
-            inserted |= self.southwest.insert(rect)
-            return inserted
+            self.northeast.insert(rect)
+            self.northwest.insert(rect)
+            self.southeast.insert(rect)
+            self.southwest.insert(rect)
+        else:
+            # 矩形插入此节点
+            self.rectangles.append(rect)
+            # 如果矩形数量超过容量，分裂
+            if len(self.rectangles) > self.capacity:
+                self.subdivide()
 
-        # 矩形插入此节点
-        self.rectangles.append(rect)
-        # 如果矩形数量超过容量，分裂
-        if len(self.rectangles) > self.capacity:
-            self.subdivide()
-
-            rects = self.rectangles.copy()
-            self.rectangles = []
-            # 将原先在此节点中的矩形重新插入到相应的子节点中
-            for r in rects:
-                self.insert_into_children(r)
-
+                rects = self.rectangles.copy()
+                self.rectangles = []
+                # 将原先在此节点中的矩形重新插入到相应的子节点中
+                for r in rects:
+                    self.insert(r)  # 这里我们重新使用insert方法
         return True
+
+    # def insert(self, rect):
+    #     # 矩形不在此节点边界内，不插入
+    #     if not self.boundary.intersects(rect):
+    #         return False
+
+    #     # 如果此节点已经分裂，尝试将矩形插入到相交的子节点中
+    #     if self.divided:
+    #         inserted = False
+    #         inserted |= self.northeast.insert(rect)
+    #         inserted |= self.northwest.insert(rect)
+    #         inserted |= self.southeast.insert(rect)
+    #         inserted |= self.southwest.insert(rect)
+    #         return inserted
+
+    #     # 矩形插入此节点
+    #     self.rectangles.append(rect)
+    #     # 如果矩形数量超过容量，分裂
+    #     if len(self.rectangles) > self.capacity:
+    #         self.subdivide()
+
+    #         rects = self.rectangles.copy()
+    #         self.rectangles = []
+    #         # 将原先在此节点中的矩形重新插入到相应的子节点中
+    #         for r in rects:
+    #             self.insert_into_children(r)
+
+    #     return True
 
 
     def insert_into_children(self, rect):
@@ -109,7 +134,7 @@ class Quadtree:
             if rect.moved:
                 color = (0, 0, 255)  # 高亮显示为蓝色
             elif rect.selected:
-                color = (255, 105, 108)  # 粉色表示被选中
+                color = (242, 178, 235)  # 粉色表示被选中
             else:
                 color = (0, 255, 0)  # 其他矩形为绿色
             pygame.draw.rect(surface, color, pygame.Rect(

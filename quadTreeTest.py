@@ -25,6 +25,11 @@ class QuadTreeTestCase(unittest.TestCase):
         self.assertFalse(self.quadTree.divided)
 
     def test_insert(self):
+        # not intersects with the boundary
+        # intersects with the boundary but not divided and not full
+        # intersects with the boundary and divided
+        # intersects with the boundary and full
+        # TODO how to assert the result???
         pass
 
     def test_insert_into_children(self):

@@ -162,6 +162,7 @@ def main():
                     selected_rect = []
                     round_counter = 0
                     next_action = "select"
+                    clear_tag = True
 
                 # simulate button
                 elif simulate_button.is_over(pygame.mouse.get_pos()):
@@ -173,6 +174,7 @@ def main():
                 elif stop_button.is_over(pygame.mouse.get_pos()):
                     simulation_active = False   #模拟状态为false
                     events.append(f"------simulation ends-------")
+                    clear_tag = True
                     pygame.time.set_timer(ACTION_EVENT, 0)
 
             elif event.type == ACTION_EVENT:

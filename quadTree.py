@@ -132,13 +132,22 @@ class Quadtree:
 
         for rect in self.rectangles:
             if rect.moved:
-                color = (0, 0, 255)  # 高亮显示为蓝色
+                color_with_alpha = (0, 0, 255) + (100,)  # 高亮显示为蓝色
+                pygame.draw.rect(surface, color_with_alpha, pygame.Rect(rect.x, rect.y, rect.w, rect.h))
+                # 再绘制一个空心的矩形作为边框
+                border_color = (0, 0, 0, 255)  # 黑色，完全不透明
+                pygame.draw.rect(surface, border_color, pygame.Rect(rect.x, rect.y, rect.w, rect.h), 1)
             elif rect.selected:
-                color = (242, 178, 235)  # 粉色表示被选中
+                color_with_alpha = (242, 178, 235) + (100,)  # 粉色表示被选中
+                pygame.draw.rect(surface, color_with_alpha, pygame.Rect(rect.x, rect.y, rect.w, rect.h))
+                # 再绘制一个空心的矩形作为边框
+                border_color = (0, 0, 0, 255)  # 黑色，完全不透明
+                pygame.draw.rect(surface, border_color, pygame.Rect(rect.x, rect.y, rect.w, rect.h), 1)
             else:
-                color = (0, 255, 0)  # 其他矩形为绿色
-            pygame.draw.rect(surface, color, pygame.Rect(
-                rect.x, rect.y, rect.w, rect.h), 1)
+                color_with_alpha = (0, 255, 0) + (255,)  # 其他矩形为绿色
+                pygame.draw.rect(surface, color_with_alpha, pygame.Rect(rect.x, rect.y, rect.w, rect.h), 1)
+
+            
 
         if self.divided:
             self.northeast.draw(surface)
@@ -150,11 +159,14 @@ class Quadtree:
     def remove(self, rect):
         if rect in self.rectangles:
             self.rectangles.remove(rect)
+            # 判断是否需要合并子节点
+            self.merge()
         if self.divided:
             self.northeast.remove(rect)
             self.northwest.remove(rect)
             self.southeast.remove(rect)
             self.southwest.remove(rect)
+            self.merge()
 
 
     # 移动某一个矩形到随机位置。
@@ -162,4 +174,33 @@ class Quadtree:
         self.remove(old_rect)
         new_rect.moved = True
         self.insert(new_rect)
-        
+
+    # 合并子节点。当子节点的父节点的所有子节点都没有数据时，合并这四个子节点。
+    def merge(self):
+        if self.divided and all([not child.rectangles and not child.divided for child in [self.northeast, self.northwest, self.southeast, self.southwest]]):
+            self.divided = False
+            self.northeast = None
+            self.northwest = None
+            self.southeast = None
+            self.southwest = None
+            return True
+        return False
+    
+
+
+    # 清空节点
+    def clear(self):
+        # 清空当前节点存储的矩形
+        self.rectangles = []
+        # 如果当前节点已经分裂（即有子节点），则递归地清空子节点
+        if self.divided:
+            self.northeast.clear()
+            self.northwest.clear()
+            self.southeast.clear()
+            self.southwest.clear()
+        # 清空完成后，将当前节点设置为未分裂状态，并删除子节点
+        self.divided = False
+        self.northeast = None
+        self.northwest = None
+        self.southeast = None
+        self.southwest = None

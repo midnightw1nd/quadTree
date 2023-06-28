@@ -1,6 +1,8 @@
 import random
 import time
 
+import matplotlib.pyplot as plt
+
 from button import Button
 from main import WIDTH, HEIGHT, NUM_RECTS, RECT_MIN_SIZE, RECT_MAX_SIZE
 from quadTree import Quadtree
@@ -8,6 +10,8 @@ from rectangle import Rectangle
 
 from memory_profiler import profile
 import pandas as pd
+import matplotlib
+matplotlib.use('TkAgg')
 
 
 def generate_random_rect_one():
@@ -65,5 +69,6 @@ for capacity in range(7, 31):
 data = {"capacity": caps, "insert time": inserts, "query time": queries}
 table = pd.DataFrame(data, index=range(1, 31-7+1), columns=["capacity", "insert time", "query time"])
 print(table)
-line_data = pd.DataFrame({"插入时间": inserts, "删除时间": queries}, index=caps)
+line_data = pd.DataFrame({"insert time": inserts, "query time": queries}, index=caps)
 line_data.plot(kind='line')
+plt.show()

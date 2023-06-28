@@ -63,5 +63,7 @@ for capacity in range(7, 31):
     queries.append(time_query)
 
 data = {"capacity": caps, "insert time": inserts, "query time": queries}
-table = pd.DataFrame(data, columns=["capacity", "insert time", "query time"])
+table = pd.DataFrame(data, index=range(1, 31-7+1), columns=["capacity", "insert time", "query time"])
 print(table)
+line_data = pd.DataFrame({"插入时间": inserts, "删除时间": queries}, index=caps)
+line_data.plot(kind='line')

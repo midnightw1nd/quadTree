@@ -1,6 +1,7 @@
 import datetime
 import pygame
 import random
+import math
 from random import choice
 from rectangle import Rectangle
 from quadTree import Quadtree
@@ -38,12 +39,20 @@ def main():
     reset_button = Button(950, 710, 100, 35, 'Reset')
     simulate_button = Button(530,35,100,50, 'simulate')
     stop_button = Button(650,35,100,50, 'stop')
-    qt = Quadtree(boundary, CAPACITY)
 
     # 创建字体对象
     font = pygame.font.Font(None, 24)
     hit_font = pygame.font.SysFont('comicsans', 15, True)
     event_font = pygame.font.Font(None, 18)
+
+    # 计算适配容量
+    real_cap = max(CAPACITY, math.ceil(NUM_RECTS/pow(4,6)))
+    real_cap = math.ceil((real_cap + math.ceil(NUM_RECTS/19)) / 2) 
+    
+
+    qt = Quadtree(boundary, real_cap)
+
+    
 
     # 添加一个列表来存储事件
     events = []
@@ -249,7 +258,12 @@ def main():
         # 绘制当前最大深度文本
         depth = str(qt.max_depth())
         depth_text = font.render("Max Depth: "+ depth, True, (0, 0, 0))
-        screen.blit(depth_text, (750,10))
+        screen.blit(depth_text, (752,10))
+
+        # 绘制当前容量文本
+        cap_text = font.render("Capacity: "+ str(real_cap), True, (0, 0, 0))
+        screen.blit(cap_text, (752,30))
+
 
         select_button.draw(screen)
         move_selected_button.draw(screen)

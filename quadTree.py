@@ -41,33 +41,6 @@ class Quadtree:
                     self.insert(r)  # 这里我们重新使用insert方法
         return True
 
-    # def insert(self, rect):
-    #     # 矩形不在此节点边界内，不插入
-    #     if not self.boundary.intersects(rect):
-    #         return False
-
-    #     # 如果此节点已经分裂，尝试将矩形插入到相交的子节点中
-    #     if self.divided:
-    #         inserted = False
-    #         inserted |= self.northeast.insert(rect)
-    #         inserted |= self.northwest.insert(rect)
-    #         inserted |= self.southeast.insert(rect)
-    #         inserted |= self.southwest.insert(rect)
-    #         return inserted
-
-    #     # 矩形插入此节点
-    #     self.rectangles.append(rect)
-    #     # 如果矩形数量超过容量，分裂
-    #     if len(self.rectangles) > self.capacity:
-    #         self.subdivide()
-
-    #         rects = self.rectangles.copy()
-    #         self.rectangles = []
-    #         # 将原先在此节点中的矩形重新插入到相应的子节点中
-    #         for r in rects:
-    #             self.insert_into_children(r)
-
-    #     return True
 
 
     def insert_into_children(self, rect):
@@ -110,7 +83,7 @@ class Quadtree:
 
         self.divided = True
 
-    # 对于给定的坐标点（鼠标位置），查找该点所在的所有矩形
+    # 对于给定的坐标点（鼠标位置），查找该点所属节点包含的的所有矩形(碰撞候选者)
     def query_point(self, x, y):
         # 如果坐标点不在节点的边界范围内，则返回空列表
         if not self.boundary.contains(x, y):
@@ -131,14 +104,14 @@ class Quadtree:
             self.boundary.x, self.boundary.y, self.boundary.w, self.boundary.h), 1)
 
         for rect in self.rectangles:
-            if rect.moved:
-                color_with_alpha = (0, 0, 255) + (100,)  # 高亮显示为蓝色
+            if rect.selected:
+                color_with_alpha = (242, 178, 235) + (100,)  # 粉色表示被选中
                 pygame.draw.rect(surface, color_with_alpha, pygame.Rect(rect.x, rect.y, rect.w, rect.h))
                 # 再绘制一个空心的矩形作为边框
                 border_color = (0, 0, 0, 255)  # 黑色，完全不透明
                 pygame.draw.rect(surface, border_color, pygame.Rect(rect.x, rect.y, rect.w, rect.h), 1)
-            elif rect.selected:
-                color_with_alpha = (242, 178, 235) + (100,)  # 粉色表示被选中
+            elif rect.moved:
+                color_with_alpha = (0, 0, 255) + (100,)  # 高亮显示为蓝色
                 pygame.draw.rect(surface, color_with_alpha, pygame.Rect(rect.x, rect.y, rect.w, rect.h))
                 # 再绘制一个空心的矩形作为边框
                 border_color = (0, 0, 0, 255)  # 黑色，完全不透明
@@ -204,3 +177,28 @@ class Quadtree:
         self.northwest = None
         self.southeast = None
         self.southwest = None
+
+
+    # 计算四叉树的最大深度
+    def max_depth(self):
+        # 如果当前节点没有分裂，则深度为 1
+        if not self.divided:
+            return 1
+        else:
+            # 递归计算子节点的最大深度，并返回最大值
+            depths = []
+            if self.northeast:
+                depths.append(self.northeast.max_depth())
+            if self.northwest:
+                depths.append(self.northwest.max_depth())
+            if self.southeast:
+                depths.append(self.southeast.max_depth())
+            if self.southwest:
+                depths.append(self.southwest.max_depth())
+            if depths:
+                return max(depths) + 1
+            else:
+                return 1
+
+
+    

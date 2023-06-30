@@ -42,6 +42,7 @@ def main():
 
     # 创建字体对象
     font = pygame.font.Font(None, 24)
+    hit_font = pygame.font.SysFont('comicsans', 15, True)
     event_font = pygame.font.Font(None, 18)
 
     # 添加一个列表来存储事件
@@ -169,8 +170,6 @@ def main():
                     simulation_active = True    #模拟状态为true
                     pygame.time.set_timer(ACTION_EVENT, 1000) 
                     events.append(f"------simulation begins-------")
-                    # pygame.time.set_timer(MOVE_EVENT, 3000) 
-                    # pygame.time.set_timer(PAUSE_EVENT, 1000) 
                 elif stop_button.is_over(pygame.mouse.get_pos()):
                     simulation_active = False   #模拟状态为false
                     events.append(f"------simulation ends-------")
@@ -206,6 +205,9 @@ def main():
 
         screen.fill((255, 255, 255))
 
+
+        
+
         # 绘制历史记录文本框
         pygame.draw.rect(screen, (0, 0, 0), pygame.Rect(WIDTH + 80, 50, 250, 650), 3)
         title_text = font.render("History", True, (0, 0, 0))
@@ -227,13 +229,27 @@ def main():
 
         mouse_x, mouse_y = pygame.mouse.get_pos()
         found = qt.query_point(mouse_x, mouse_y)
+        collide_id = []
 
         for rect in found:
-            pygame.draw.rect(screen, (255, 0, 0), pygame.Rect(
-                rect.x, rect.y, rect.w, rect.h))
+            # 候选者显示为黄色
+            pygame.draw.rect(screen, (255, 226, 29), pygame.Rect(rect.x, rect.y, rect.w, rect.h))
             id_text = font.render(str(rect.id), True, (0, 0, 0))
-            screen.blit(id_text, (rect.x, rect.y - 20))  # 在矩形的上方显示编号
+            screen.blit(id_text, (rect.x, rect.y - 15))  # 在矩形的上方显示编号
+            if rect.contains(mouse_x, mouse_y):
+                # 碰撞者显示为红色
+                pygame.draw.rect(screen, (255, 0, 0), pygame.Rect(rect.x, rect.y, rect.w, rect.h))
+                collide_id.append(rect.id)
 
+        # 绘制碰撞提示文本
+        if(collide_id != []):
+            collide_text = hit_font.render("Hit Rectangle " + str(collide_id), True, (0, 0, 0))
+            screen.blit(collide_text, (50,710))
+
+        # 绘制当前最大深度文本
+        depth = str(qt.max_depth())
+        depth_text = font.render("Max Depth: "+ depth, True, (0, 0, 0))
+        screen.blit(depth_text, (750,10))
 
         select_button.draw(screen)
         move_selected_button.draw(screen)

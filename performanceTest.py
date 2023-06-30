@@ -1,3 +1,4 @@
+import math
 import random
 import time
 
@@ -11,6 +12,7 @@ from rectangle import Rectangle
 from memory_profiler import profile
 import pandas as pd
 import matplotlib
+
 matplotlib.use('TkAgg')
 
 
@@ -42,8 +44,8 @@ class PerformanceTest:
         return hundreds, time_end - time_start
 
     def test_query_one(self):
-        x = random.uniform(self.boundary.x, self.boundary.x+self.boundary.w)
-        y = random.uniform(self.boundary.y, self.boundary.y+self.boundary.h)
+        x = random.uniform(self.boundary.x, self.boundary.x + self.boundary.w)
+        y = random.uniform(self.boundary.y, self.boundary.y + self.boundary.h)
         self.qt.query_point(x, y)
 
     def test_query_many_times(self, quantity=500):
@@ -58,6 +60,7 @@ class PerformanceTest:
 caps = []
 inserts = []
 queries = []
+quantities = []
 for capacity in range(7, 31):
     mt = PerformanceTest(capacity)
     hundreds_times, time_insert = mt.test_insert_many_times(500)
@@ -67,8 +70,29 @@ for capacity in range(7, 31):
     queries.append(time_query)
 
 data = {"capacity": caps, "insert time": inserts, "query time": queries}
-table = pd.DataFrame(data, index=range(1, 31-7+1), columns=["capacity", "insert time", "query time"])
+table = pd.DataFrame(data, index=range(1, 31 - 7 + 1), columns=["capacity", "insert time", "query time"])
 print(table)
 line_data = pd.DataFrame({"insert time": inserts, "query time": queries}, index=caps)
 line_data.plot(kind='line')
+
+# caps.clear()
+# inserts.clear()
+# queries.clear()
+# quantities.clear()
+# for quantity in range(100, 1000, 100):
+#     real_cap = max(4, math.ceil(NUM_RECTS / pow(4, 6)))
+#     real_cap = math.ceil((real_cap + math.ceil(NUM_RECTS / 19)) / 2)
+#     mt = PerformanceTest(real_cap)
+#     hundreds_times, time_insert = mt.test_insert_many_times(quantity)
+#     _, time_query = mt.test_query_many_times(quantity)
+#     quantities.append(quantity)
+#     caps.append(real_cap)
+#     inserts.append(time_insert)
+#     queries.append(time_query)
+#
+# data = {"capacity": caps, "nodes": quantities, "insert time": inserts, "query time": queries}
+# table = pd.DataFrame(data, index=range(1, 10), columns=["capacity", "nodes", "insert time", "query time"])
+# print(table)
+# line_data = pd.DataFrame({"insert time": inserts, "query time": queries}, index=quantities)
+# line_data.plot(kind="line")
 plt.show()

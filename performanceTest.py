@@ -12,6 +12,7 @@ from rectangle import Rectangle
 from memory_profiler import profile
 import pandas as pd
 import matplotlib
+from rtreelib import RTree, Rect
 
 matplotlib.use('TkAgg')
 
@@ -57,6 +58,42 @@ class PerformanceTest:
         return times, time_end - time_start
 
 
+def generate_rect_one():
+    w = random.randint(RECT_MIN_SIZE, RECT_MAX_SIZE)
+    h = random.randint(RECT_MIN_SIZE, RECT_MAX_SIZE)
+    x = random.randint(50, WIDTH + 50 - w)
+    y = random.randint(100, HEIGHT + 100 - h)
+    rect = Rect(x, y, w, h)
+    return rect
+
+
+class MyRTree:
+    def __init__(self):
+        self.rt = RTree()
+
+    def test_insert_one(self, dat):
+        self.rt.insert(dat, generate_rect_one())
+
+    def test_insert_many_times(self, quantity=500):
+        hundreds = quantity
+        time_start = time.time()
+        for i in range(hundreds):
+            self.test_insert_one(i)
+        time_end = time.time()
+        return hundreds, time_end - time_start
+
+    def test_query_one(self):
+        self.rt.query(generate_rect_one())
+
+    def test_query_many_times(self, quantity=500):
+        times = quantity
+        time_start = time.time()
+        for i in range(times):
+            self.test_query_one()
+        time_end = time.time()
+        return times, time_end - time_start
+
+
 caps = []
 inserts = []
 queries = []
@@ -69,9 +106,15 @@ for capacity in range(7, 31):
     inserts.append(time_insert)
     queries.append(time_query)
 
+t = RTree()
+t = MyRTree()
+_, time_insert = t.test_query_many_times()
+_, time_query = t.test_query_many_times()
+
 data = {"capacity": caps, "insert time": inserts, "query time": queries}
 table = pd.DataFrame(data, index=range(1, 31 - 7 + 1), columns=["capacity", "insert time", "query time"])
 print(table)
+print(f"RTree insert time is {time_insert}, query time is{time_query}.")
 line_data = pd.DataFrame({"insert time": inserts, "query time": queries}, index=caps)
 line_data.plot(kind='line')
 
